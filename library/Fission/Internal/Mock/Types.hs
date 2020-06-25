@@ -259,6 +259,10 @@ instance IsMember ModifyUser effs => User.Modifier (Mock effs) where
     Effect.log $ ModifyUser uID
     return $ Right newPK
 
+  updateExchangeKeys uID newKeys _ = do
+    Effect.log $ ModifyUser uID
+    return $ Right newKeys
+
   setData uID _ _ = do
     Effect.log $ ModifyUser uID
     return ok

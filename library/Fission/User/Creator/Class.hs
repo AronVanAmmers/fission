@@ -84,6 +84,7 @@ instance
   create username pk email now =
     User
       { userPublicKey     = Just pk
+      , userExchangeKeys  = []
       , userUsername      = username
       , userEmail         = Just email
       , userRole          = Regular
@@ -123,6 +124,7 @@ instance
       Right secretDigest ->
         User
           { userPublicKey     = Nothing
+          , userExchangeKeys  = []
           , userUsername      = username
           , userEmail         = Just email
           , userRole          = Regular
@@ -157,6 +159,7 @@ instance
           Right secretDigest ->
             User
               { userPublicKey     = Nothing
+              , userExchangeKeys  = []
               , userUsername      = username
               , userEmail         = Nothing
               , userRole          = Regular

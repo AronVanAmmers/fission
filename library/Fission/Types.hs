@@ -62,9 +62,12 @@ import qualified Fission.Web.Auth.Token                as Auth.Token
 import           Fission.Web.Handler
 import           Fission.Web.Server.Reflective         as Reflective
 
-import           Fission.User.DID.Types
-import qualified Fission.User          as User
+import           Fission.User.DID            as DID
+import qualified Fission.User                as User
 import           Fission.User.Creator.Class
+import qualified Fission.User.Modifier.Class as User.Modifier
+
+import qualified Fission.Key as Key
 
 import           Fission.Web.Auth.Token.Basic.Class
 import qualified Fission.Web.Auth.Token.JWT.RawContent as JWT
@@ -405,28 +408,16 @@ instance User.Modifier Fission where
     runDB $ User.updatePassword uID pass now
 
   updatePublicKey uID pk now =
-    runDB (User.updatePublicKey uID pk now) >>= \case
-      Left err ->
-        return $ Left err
+    runUserUpdate updatePK uID "_did" keyTxt
+    where
+      updatePK = User.updatePublicKey uID pk now
+      keyTxt = textDisplay (DID Key pk)
 
-      Right _ -> do
-        runDB (User.getById uID) >>= \case
-          Nothing -> 
-            return . Error.openLeft $ NotFound @User
-
-          Just (Entity _ User { userUsername = Username rawUN }) -> do
-            domainName <- asks userRootDomain
-            zoneID     <- asks userZoneID
-
-            let
-              subdomain = Just $ Subdomain rawUN
-              url       = URL {domainName, subdomain = Just (Subdomain "_did") <> subdomain}
-              did       = textDisplay (DID pk Key)
-              didSegments = DNS.splitRecord did
-
-            Route53.set Txt url zoneID didSegments 10 <&> \case
-              Left serverErr -> Error.openLeft serverErr
-              Right _        -> Right pk
+  updateExchangeKeys uID keys now =
+    runUserUpdate updateKeys uID "_exchange" keysTxt
+    where
+      updateKeys = User.updateExchangeKeys uID keys now
+      keysTxt = Text.intercalate "," (textDisplay . DID Key . Key.RSAPublicKey <$> keys)
 
   setData userId newCID now = do
     runDB (User.setData userId newCID now) >>= \case
@@ -520,40 +511,6 @@ instance App.Destroyer Fission where
     runDB (App.destroyByURL uId domainName maySubdomain now) >>= \case
       Left err   -> return $ Left err
       Right urls -> pullFromDNS urls
-  
-pullFromDNS :: [URL] -> Fission (Either App.Destroyer.Errors [URL])
-pullFromDNS urls = do
-  domainsAndZoneIDs <- runDB . select $ from \domain -> do
-    where_ $ domain ^. DomainDomainName `in_` valList (URL.domainName <$> urls)
-    return (domain ^. DomainDomainName, domain ^. DomainZoneId)
-
-  let
-    zonesForDomains :: [(DomainName, ZoneID)]
-    zonesForDomains =
-      domainsAndZoneIDs <&> \(SQL.Value domain, SQL.Value zone) -> (domain, zone)
-
-  foldM (folder zonesForDomains) (Right []) urls
- 
-  where
-    folder ::
-         [(DomainName, ZoneID)]            -- ^ Hosted zone map
-      -> Either App.Destroyer.Errors [URL] -- ^ Accumulator
-      -> URL                               -- ^ Focus
-      -> Fission (Either App.Destroyer.Errors [URL])
-
-    folder _ (Left err) _ =
-      return $ Left err
-
-    folder zonesForDomains (Right accs) url@URL {..} = do
-      case lookup domainName zonesForDomains of
-        Nothing -> do
-          logError $ "Unable to find zone for " <> textDisplay domainName
-          return . Error.openLeft $ NotFound @ZoneID
-
-        Just zoneId ->
-          AWS.clear Txt url zoneId <&> \case
-            Left err -> Error.openLeft err
-            Right _  -> Right (url : accs)
 
 instance Heroku.AddOn.Creator Fission where
   create uuid region now = runDB $ Heroku.AddOn.create uuid region now
@@ -592,3 +549,65 @@ instance MonadEmail Fission where
         }
 
     liftIO $ runClientM (Email.sendEmail apiKey emailData) env
+  
+pullFromDNS :: [URL] -> Fission (Either App.Destroyer.Errors [URL])
+pullFromDNS urls = do
+  domainsAndZoneIDs <- runDB . select $ from \domain -> do
+    where_ $ domain ^. DomainDomainName `in_` valList (URL.domainName <$> urls)
+    return (domain ^. DomainDomainName, domain ^. DomainZoneId)
+
+  let
+    zonesForDomains :: [(DomainName, ZoneID)]
+    zonesForDomains =
+      domainsAndZoneIDs <&> \(SQL.Value domain, SQL.Value zone) -> (domain, zone)
+
+  foldM (folder zonesForDomains) (Right []) urls
+ 
+  where
+    folder ::
+         [(DomainName, ZoneID)]            -- ^ Hosted zone map
+      -> Either App.Destroyer.Errors [URL] -- ^ Accumulator
+      -> URL                               -- ^ Focus
+      -> Fission (Either App.Destroyer.Errors [URL])
+
+    folder _ (Left err) _ =
+      return $ Left err
+
+    folder zonesForDomains (Right accs) url@URL {..} = do
+      case lookup domainName zonesForDomains of
+        Nothing -> do
+          logError $ "Unable to find zone for " <> textDisplay domainName
+          return . Error.openLeft $ NotFound @ZoneID
+
+        Just zoneId ->
+          AWS.clear Txt url zoneId <&> \case
+            Left err -> Error.openLeft err
+            Right _  -> Right (url : accs)
+
+runUserUpdate ::
+     Fission (Either User.Modifier.Errors a)
+  -> UserId
+  -> Text
+  -> Text
+  -> Fission (Either User.Modifier.Errors a)
+runUserUpdate updateDB uID subdomain txt =
+  updateDB >>= \case
+    Left err ->
+      return $ Left err
+  
+    Right dbVal -> do
+      runDB (User.getById uID) >>= \case
+        Nothing ->
+          return . Error.openLeft $ NotFound @User
+
+        Just (Entity _ User { userUsername = Username rawUN }) -> do
+          domainName <- asks userRootDomain
+          zoneID     <- asks userZoneID
+
+          let
+            url = URL {domainName, subdomain = Just (Subdomain subdomain) <> Just (Subdomain rawUN)}
+            segments = DNS.splitRecord txt
+
+          Route53.set Txt url zoneID segments 10 <&> \case
+            Left serverErr -> Error.openLeft serverErr
+            Right _        -> Right dbVal
