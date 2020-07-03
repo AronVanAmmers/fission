@@ -446,14 +446,14 @@ instance User.Modifier Fission where
                 , subdomain  = Just $ Subdomain (username <> ".files")
                 }
 
-            DNSLink.set userId url zoneID newCID <&> \case
+            DNSLink.set userId url zoneID newCID >>= \case
               Left err -> 
-                Error.relaxedLeft err
+                return $ Error.relaxedLeft err
 
               Right _  -> 
-                IPFS.Pin.add newCID <&> \case
-                  Right _  -> ok
-                  Left err -> Error.openLeft err
+                IPFS.Pin.add newCID >>= \case
+                  Right _  -> return ok
+                  Left err -> return $ Error.openLeft err
 
 instance User.Destroyer Fission where
   deactivate requestorId userId = runDB $ User.deactivate requestorId userId
