@@ -81,10 +81,12 @@ User
 ------------
 
 UpdateUserDataRootEvent
-  userId      UserId
-  newDataRoot CID
+  userId          UserId
 
-  insertedAt  UTCTime
+  newDataRoot     CID
+  newDataRootSize Natural
+
+  insertedAt      UTCTime
 
   deriving Show Eq
 
@@ -148,8 +150,10 @@ DestroyAppEvent
   deriving Show Eq
 
 SetAppCIDEvent
-  appId  AppId
-  newCID CID
+  appId      AppId
+
+  newCID     CID
+  newCIDSize Natural
 
   insertedAt UTCTime
 

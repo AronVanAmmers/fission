@@ -38,12 +38,13 @@ class Monad m => Modifier m where
        UserId  -- ^ User for auth
     -> URL     -- ^ URL associated with target app
     -> CID     -- ^ New CID
+    -> Natural -- ^ Size of new CID
     -> Bool    -- ^ Flag: copy data (default yes)
     -> UTCTime -- ^ Now
     -> m (Either Errors AppId)
 
 instance MonadIO m => Modifier (Transaction m) where
-  setCID userId URL {..} newCID _copyFlag now = do
+  setCID userId URL {..} newCID size _copyFlag now = do
     mayAppDomain <- Persist.selectFirst
       [ AppDomainDomainName ==. domainName
       , AppDomainSubdomain  ==. subdomain
@@ -61,8 +62,11 @@ instance MonadIO m => Modifier (Transaction m) where
           Just app ->
             if isOwnedBy userId app
               then do
-                update appId [AppCid =. newCID]
-                insert $ SetAppCIDEvent appId newCID now
+                update appId 
+                  [ AppCid  =. newCID
+                  , AppSize =. size
+                  ]
+                insert $ SetAppCIDEvent appId newCID size now
                 return $ Right appId
 
               else

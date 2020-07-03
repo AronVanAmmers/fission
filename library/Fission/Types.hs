@@ -483,8 +483,8 @@ instance App.Creator Fission where
           Right _   -> Right (appId, subdomain)
 
 instance App.Modifier Fission where
-  setCID userId url newCID copyFiles now = do
-    runDB (App.setCID userId url newCID copyFiles now) >>= \case
+  setCID userId url newCID size copyFiles now = do
+    runDB (App.setCID userId url newCID size copyFiles now) >>= \case
       Left err ->
         return $ Left err
 

@@ -24,17 +24,16 @@ type API
   :> PatchNoContent '[PlainText, OctetStream, JSON] NoContent
 
 server ::
-  ( MonadLogger   m
-  , MonadThrow    m
-  , MonadTime     m
+  ( MonadLogger     m
+  , MonadThrow      m
+  , MonadTime       m
   , MonadRemoteIPFS m
-  , User.Modifier m
+  , User.Modifier   m
   )
   => Authorization
   -> ServerT API m
 server Authorization {about = Entity userID _} newCID = do
   now <- currentTime
-  stat <- Web.Error.ensureM $ IPFS.Stat.getStatRemote newCID
-  let size = IPFS.Stat.cumulativeSize stat
+  size <- Web.Error.ensureM $ IPFS.Stat.getSizeRemote newCID
   Web.Error.ensureM $ User.setData userID newCID size now
   return NoContent

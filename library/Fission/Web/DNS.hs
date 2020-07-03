@@ -29,16 +29,15 @@ type API
 -- Deprecated! Works the "old" way with direct access to username.fission.name,
 -- WITHOUT the `files` prefix
 server ::
-  ( MonadTime     m
-  , MonadThrow    m
-  , MonadLogger   m
+  ( MonadTime       m
+  , MonadThrow      m
+  , MonadLogger     m
   , MonadRemoteIPFS m
-  , User.Modifier m
+  , User.Modifier   m
   )
   => Authorization -> ServerT API m
 server Authorization {about = Entity userID User {userUsername = Username rawUN}} cid = do
   now <- currentTime
-  stat <- Web.Err.ensureM $ IPFS.Stat.getStatRemote cid
-  let size = IPFS.Stat.cumulativeSize stat
+  size <- Web.Err.ensureM $ IPFS.Stat.getSizeRemote cid
   ensureM $ User.setData userID cid size now
   return . DomainName $ rawUN <> ".fission.name"

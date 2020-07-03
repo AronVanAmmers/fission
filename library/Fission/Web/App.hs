@@ -9,6 +9,7 @@ import           Fission.Authorization
 import           Fission.Prelude
 
 import           Fission.IPFS.DNSLink.Class as DNSLink
+import           Network.IPFS.Remote.Class
 
 import qualified Fission.App                as App
 import qualified Fission.App.Content        as App.Content
@@ -32,6 +33,7 @@ server ::
   , MonadTime               m
   , MonadLogger             m
   , MonadDNSLink            m
+  , MonadRemoteIPFS         m
   , MonadDB               t m
   , App.CRUD              t
   , App.Domain.Retriever  t
