@@ -36,6 +36,7 @@ instance (MonadIO m, App.Domain.Initializer m) => Creator (Transaction m) where
     appId <- insert App
       { appOwnerId    = ownerId
       , appCid        = cid
+      , appSize       = 0 -- @@TODO: add actual size here
       , appInsertedAt = now
       , appModifiedAt = now
       }

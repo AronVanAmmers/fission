@@ -122,6 +122,8 @@ App
   ownerId     UserId
   cid         CID
 
+  size        Natural
+
   insertedAt  UTCTime
   modifiedAt  UTCTime
 
