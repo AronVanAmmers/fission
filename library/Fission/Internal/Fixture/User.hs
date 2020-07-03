@@ -12,8 +12,12 @@ import qualified Fission.Internal.Fixture.Key.Ed25519 as Ed25519
 
 user :: User
 user = User
-  { userUsername = "testUser"
+  { userPublicKey = Just Ed25519.pk
+
+  --
+
   , userEmail    = Just "test@fission.codes"
+  , userUsername = "testUser"
 
   --
 
@@ -22,8 +26,8 @@ user = User
 
   --
 
-  , userPublicKey = Just Ed25519.pk
-  , userDataRoot  = CID "QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ"
+  , userDataRoot     = CID "QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ"
+  , userDataRootSize = 0
 
   --
 

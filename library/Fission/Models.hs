@@ -62,6 +62,7 @@ User
   active        Bool
 
   dataRoot      CID
+  dataRootSize  Natural
 
   herokuAddOnId HerokuAddOnId Maybe
   secretDigest  SecretDigest  Maybe
