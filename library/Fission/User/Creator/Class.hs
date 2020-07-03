@@ -91,6 +91,7 @@ instance
       , userHerokuAddOnId = Nothing
       , userSecretDigest  = Nothing
       , userDataRoot      = App.Content.empty
+      , userDataRootSize  = 0
       , userInsertedAt    = now
       , userModifiedAt    = now
       }
@@ -129,6 +130,7 @@ instance
           , userHerokuAddOnId = Nothing
           , userSecretDigest  = Just secretDigest
           , userDataRoot      = App.Content.empty
+          , userDataRootSize  = 0
           , userInsertedAt    = now
           , userModifiedAt    = now
           }
@@ -162,6 +164,7 @@ instance
               , userHerokuAddOnId = Just herokuAddOnId
               , userSecretDigest  = Just secretDigest
               , userDataRoot      = App.Content.empty
+              , userDataRootSize  = 0
               , userInsertedAt    = now
               , userModifiedAt    = now
               }
