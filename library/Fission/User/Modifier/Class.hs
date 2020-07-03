@@ -80,12 +80,7 @@ instance MonadIO m => Modifier (Transaction m) where
       , UserModifiedAt   =. now
       ]
 
-    insert_ UpdateUserDataRootEvent
-      { updateUserDataRootEventUserId          = userId
-      , updateUserDataRootEventNewDataRoot     = newCID
-      , updateUserDataRootEventNewDataRootSize = size
-      , updateUserDataRootEventInsertedAt      = now
-      }
+    insert_ $ UpdateUserDataRootEvent userId newCID size now
 
     return ok
 
