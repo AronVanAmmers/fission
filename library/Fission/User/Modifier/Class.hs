@@ -7,6 +7,7 @@ import           Database.Persist as Persist
 import           Servant.Server
 
 import qualified Network.IPFS.Add.Error as IPFS.Pin
+import qualified Network.IPFS.Get.Error as IPFS.Stat
 import           Network.IPFS.CID.Types
 
 import           Fission.Error
@@ -24,6 +25,7 @@ type Errors = OpenUnion
    , ActionNotAuthorized URL
 
    , IPFS.Pin.Error
+   , IPFS.Stat.Error
 
    , ServerError
    , InvalidURL
@@ -45,6 +47,7 @@ class Monad m => Modifier m where
   setData ::
        UserId
     -> CID
+    -> Natural
     -> UTCTime
     -> m (Either Errors ())
 
@@ -70,10 +73,11 @@ instance MonadIO m => Modifier (Transaction m) where
 
     return $ Right pk
 
-  setData userId newCID now = do
+  setData userId newCID size now = do
     update userId
-      [ UserDataRoot   =. newCID
-      , UserModifiedAt =. now
+      [ UserDataRoot     =. newCID
+      , UserDataRootSize =. size
+      , UserModifiedAt   =. now
       ]
 
     insert_ UpdateUserDataRootEvent

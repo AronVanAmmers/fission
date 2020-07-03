@@ -24,6 +24,7 @@ import qualified Fission.User.Username      as Username
 import qualified Fission.User.Validation    as User
 
 import qualified Network.IPFS.Add.Error as IPFS.Pin
+import qualified Network.IPFS.Get.Error as IPFS.Stat
 
 import qualified Fission.App.Domain  as App.Domain
 import qualified Fission.App.Content as App.Content
@@ -48,8 +49,9 @@ type Errors = OpenUnion
    , Password.FailedDigest
 
    , IPFS.Pin.Error
-   , InvalidURL
+   , IPFS.Stat.Error
 
+   , InvalidURL
    , ServerError
    ]
 
@@ -109,7 +111,7 @@ instance
               determineConflict username (Just pk)
 
             Just userId ->
-              User.setData userId App.Content.empty now >>= \case
+              User.setData userId App.Content.empty 0 now >>= \case
                 Left err ->
                   return $ Error.relaxedLeft err
 

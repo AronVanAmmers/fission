@@ -13,6 +13,7 @@ import           Servant
 
 import           Fission.Prelude
 import           Fission.IPFS.DNSLink.Class as DNSLink
+import           Network.IPFS.Remote.Class
 
 import qualified Fission.User as User
 
@@ -70,6 +71,7 @@ server ::
   ( MonadDNSLink  m
   , MonadLogger   m
   , MonadTime     m
+  , MonadRemoteIPFS m 
   , User.Modifier m
   , User.Creator  m
   )

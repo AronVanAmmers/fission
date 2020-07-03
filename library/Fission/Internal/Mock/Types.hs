@@ -260,7 +260,7 @@ instance IsMember ModifyUser effs => User.Modifier (Mock effs) where
     Effect.log $ ModifyUser uID
     return $ Right newPK
 
-  setData uID _ _ = do
+  setData uID _ _ _ = do
     Effect.log $ ModifyUser uID
     return ok
 

@@ -46,7 +46,7 @@ extra-deps:
 - hspec-wai-json-0.10.1
 # - ipfs-1.0.3
 - git: https://github.com/fission-suite/ipfs-haskell.git
-  commit: 67cfb6943665027f12e568fec522054de0786811
+  commit: 7e8b8c9a06dd454047e38f298ac54b239421ab95
 - lzma-clib-5.2.2
 - raven-haskell-0.1.4.0
 - servant-quickcheck-0.0.7.4

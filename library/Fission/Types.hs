@@ -377,7 +377,7 @@ instance User.Creator Fission where
               Right _ -> do
                 defaultCID <- asks defaultDataCID
                
-                User.setData userId defaultCID now <&> \case
+                User.setData userId defaultCID 0 now <&> \case
                   Left err -> Error.relaxedLeft err
                   Right () -> Right userId
 
@@ -426,8 +426,8 @@ instance User.Modifier Fission where
       splitter chr (255, txtList)       = splitter chr (0, "" `cons` txtList)
       splitter chr (len, (txt :| more)) = (len + 1, (Text.cons chr txt) :| more)
 
-  setData userId newCID now = do
-    runDB (User.setData userId newCID now) >>= \case
+  setData userId newCID size now = do
+    runDB (User.setData userId newCID size now) >>= \case
       Left err ->
         return $ Left err
        
