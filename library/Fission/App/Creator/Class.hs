@@ -46,6 +46,8 @@ instance (MonadIO m, App.Domain.Initializer m) => Creator (Transaction m) where
       , appModifiedAt = now
       }
 
+    _ <- insert $ CreateAppEvent appId ownerId cid size now
+
     App.Domain.associateDefault ownerId appId now <&> \case
       Left  err       -> Error.relaxedLeft err
       Right subdomain -> Right (appId, subdomain)

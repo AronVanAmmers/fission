@@ -136,8 +136,11 @@ App
 ------------
 
 CreateAppEvent
+  appId       AppId
   ownerId     UserId
+
   cid         CID
+  size        Natural
 
   insertedAt  UTCTime
 
