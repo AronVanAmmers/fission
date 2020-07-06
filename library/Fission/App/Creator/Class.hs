@@ -29,14 +29,19 @@ type Errors = OpenUnion
    ]
 
 class Monad m => Creator m where
-  create :: UserId -> CID -> UTCTime -> m (Either Errors (AppId, Subdomain))
+  create :: 
+       UserId 
+    -> CID 
+    -> Natural 
+    -> UTCTime 
+    -> m (Either Errors (AppId, Subdomain))
 
 instance (MonadIO m, App.Domain.Initializer m) => Creator (Transaction m) where
-  create ownerId cid now = do
+  create ownerId cid size now = do
     appId <- insert App
       { appOwnerId    = ownerId
       , appCid        = cid
-      , appSize       = 0 -- @@TODO: add actual size here
+      , appSize       = size
       , appInsertedAt = now
       , appModifiedAt = now
       }

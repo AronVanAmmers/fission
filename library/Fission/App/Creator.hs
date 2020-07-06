@@ -22,4 +22,4 @@ createWithPlaceholder ::
   -> m (Either Errors (AppId, Subdomain))
 createWithPlaceholder ownerId now = do
   defaultCID <- AppCID.placeholder
-  create ownerId defaultCID now
+  create ownerId defaultCID 0 now

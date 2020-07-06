@@ -464,8 +464,8 @@ instance App.Retriever Fission where
   ownedBy uId       = runDB $ App.ownedBy uId
 
 instance App.Creator Fission where
-  create ownerID cid now =
-    runDB (App.create ownerID cid now) >>= \case
+  create ownerID cid size now =
+    runDB (App.create ownerID cid size now) >>= \case
       Left err ->
         return $ Left err
 
