@@ -13,6 +13,8 @@ import           Fission.App.Creator.Class
 
 import           Fission.URL.Subdomain.Types
 
+import           Network.IPFS.Bytes.Types
+
 createWithPlaceholder ::
   ( App.Creator        m
   , AppCID.Initializer m
@@ -22,4 +24,4 @@ createWithPlaceholder ::
   -> m (Either Errors (AppId, Subdomain))
 createWithPlaceholder ownerId now = do
   defaultCID <- AppCID.placeholder
-  create ownerId defaultCID 0 now
+  create ownerId defaultCID (Bytes 0) now

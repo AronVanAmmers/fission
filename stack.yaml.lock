@@ -44,12 +44,12 @@ packages:
     version: 1.0.3
     git: https://github.com/fission-suite/ipfs-haskell.git
     pantry-tree:
-      size: 4887
-      sha256: 0332ced970e6dd0f9d0dd7ee05236a1dd15e08a2d54822477d270eac8c0c2fbb
-    commit: 0b52e01fc53f05912350a413be6e246bc8d0e919
+      size: 4962
+      sha256: 586549935f68e84d428e00ee1ba3f1991fa4255014ab69a95b5229741504c6f8
+    commit: 34360d2caeab4ab3ed22aec078973242bec3b71e
   original:
     git: https://github.com/fission-suite/ipfs-haskell.git
-    commit: 0b52e01fc53f05912350a413be6e246bc8d0e919
+    commit: 34360d2caeab4ab3ed22aec078973242bec3b71e
 - completed:
     hackage: lzma-clib-5.2.2@sha256:25eb43d5fd8a8ab58380f475b91fb1fa907381f8a81c8d8ba63ba428d97ae0cc,4900
     pantry-tree:

@@ -9,6 +9,7 @@ import           Servant.Server
 import qualified Network.IPFS.Add.Error as IPFS.Pin
 import qualified Network.IPFS.Get.Error as IPFS.Stat
 import           Network.IPFS.CID.Types
+import           Network.IPFS.Bytes.Types
 
 import           Fission.Error
 import           Fission.Models
@@ -47,7 +48,7 @@ class Monad m => Modifier m where
   setData ::
        UserId
     -> CID
-    -> Natural
+    -> Bytes
     -> UTCTime
     -> m (Either Errors ())
 

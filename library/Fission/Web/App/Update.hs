@@ -3,8 +3,9 @@ module Fission.Web.App.Update
   , update
   ) where
 
-import           Network.IPFS.CID.Types
 import           Servant
+
+import           Network.IPFS.CID.Types
 
 import           Fission.Authorization
 import           Fission.Prelude

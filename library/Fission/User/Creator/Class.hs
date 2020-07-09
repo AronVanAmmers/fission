@@ -25,6 +25,7 @@ import qualified Fission.User.Validation    as User
 
 import qualified Network.IPFS.Add.Error as IPFS.Pin
 import qualified Network.IPFS.Get.Error as IPFS.Stat
+import           Network.IPFS.Bytes.Types
 
 import qualified Fission.App.Domain  as App.Domain
 import qualified Fission.App.Content as App.Content
@@ -96,7 +97,7 @@ instance
       , userHerokuAddOnId = Nothing
       , userSecretDigest  = Nothing
       , userDataRoot      = App.Content.empty
-      , userDataRootSize  = 0
+      , userDataRootSize  = Bytes 0
       , userInsertedAt    = now
       , userModifiedAt    = now
       }
@@ -111,7 +112,7 @@ instance
               determineConflict username (Just pk)
 
             Just userId ->
-              User.setData userId App.Content.empty 0 now >>= \case
+              User.setData userId App.Content.empty (Bytes 0) now >>= \case
                 Left err ->
                   return $ Error.relaxedLeft err
 
@@ -135,7 +136,7 @@ instance
           , userHerokuAddOnId = Nothing
           , userSecretDigest  = Just secretDigest
           , userDataRoot      = App.Content.empty
-          , userDataRootSize  = 0
+          , userDataRootSize  = Bytes 0
           , userInsertedAt    = now
           , userModifiedAt    = now
           }
@@ -169,7 +170,7 @@ instance
               , userHerokuAddOnId = Just herokuAddOnId
               , userSecretDigest  = Just secretDigest
               , userDataRoot      = App.Content.empty
-              , userDataRootSize  = 0
+              , userDataRootSize  = Bytes 0
               , userInsertedAt    = now
               , userModifiedAt    = now
               }

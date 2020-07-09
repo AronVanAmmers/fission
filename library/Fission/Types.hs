@@ -377,7 +377,7 @@ instance User.Creator Fission where
               Right _ -> do
                 defaultCID <- asks defaultDataCID
                
-                User.setData userId defaultCID 0 now <&> \case
+                User.setData userId defaultCID (IPFS.Bytes 0) now <&> \case
                   Left err -> Error.relaxedLeft err
                   Right () -> Right userId
 

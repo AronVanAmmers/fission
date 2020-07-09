@@ -4,9 +4,10 @@ module Fission.App.Creator.Class
   ) where
 
 import           Database.Esqueleto hiding ((<&>))
+import           Servant
 
 import           Network.IPFS.CID.Types
-import           Servant
+import           Network.IPFS.Bytes.Types
 
 import           Fission.Prelude
 import           Fission.Error as Error
@@ -32,7 +33,7 @@ class Monad m => Creator m where
   create :: 
        UserId 
     -> CID 
-    -> Natural 
+    -> Bytes 
     -> UTCTime 
     -> m (Either Errors (AppId, Subdomain))
 

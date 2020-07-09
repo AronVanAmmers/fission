@@ -15,6 +15,7 @@ import           Data.Swagger
 import           Data.UUID
 
 import           Network.IPFS.CID.Types
+import           Network.IPFS.Bytes.Types
 
 import qualified Fission.Internal.UTF8                as UTF8
 import           Fission.Prelude
@@ -31,6 +32,7 @@ import           Fission.User.Username.Types
 
 import qualified Fission.AWS.Zone.Types               as AWS
 
+import           Fission.Internal.Orphanage.Bytes     ()
 import           Fission.Internal.Orphanage.CID       ()
 import           Fission.Internal.Orphanage.UUID      ()
 
@@ -62,7 +64,7 @@ User
   active        Bool
 
   dataRoot      CID
-  dataRootSize  Natural
+  dataRootSize  Bytes
 
   herokuAddOnId HerokuAddOnId Maybe
   secretDigest  SecretDigest  Maybe
@@ -84,7 +86,7 @@ UpdateUserDataRootEvent
   userId          UserId
 
   newDataRoot     CID
-  newDataRootSize Natural
+  newDataRootSize Bytes
 
   insertedAt      UTCTime
 
@@ -124,7 +126,7 @@ App
   ownerId     UserId
   cid         CID
 
-  size        Natural
+  size        Bytes
 
   insertedAt  UTCTime
   modifiedAt  UTCTime
@@ -140,7 +142,7 @@ CreateAppEvent
   ownerId     UserId
 
   cid         CID
-  size        Natural
+  size        Bytes
 
   insertedAt  UTCTime
 
@@ -156,7 +158,7 @@ SetAppCIDEvent
   appId      AppId
 
   newCID     CID
-  newCIDSize Natural
+  newCIDSize Bytes
 
   insertedAt UTCTime
 

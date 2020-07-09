@@ -7,6 +7,7 @@ import           Database.Persist       as Persist
 
 import           Network.IPFS.Add.Error as IPFS.Pin
 import           Network.IPFS.CID.Types
+import           Network.IPFS.Bytes.Types
 
 import           Servant.Server
 
@@ -38,7 +39,7 @@ class Monad m => Modifier m where
        UserId  -- ^ User for auth
     -> URL     -- ^ URL associated with target app
     -> CID     -- ^ New CID
-    -> Natural -- ^ Size of new CID
+    -> Bytes   -- ^ Size of new CID
     -> Bool    -- ^ Flag: copy data (default yes)
     -> UTCTime -- ^ Now
     -> m (Either Errors AppId)

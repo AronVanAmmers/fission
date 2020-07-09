@@ -1,6 +1,7 @@
 module Fission.Internal.Fixture.User (user) where
 
 import           Network.IPFS.CID.Types
+import           Network.IPFS.Bytes.Types
 
 import           Fission.Prelude
 import           Fission.Models
@@ -27,7 +28,7 @@ user = User
   --
 
   , userDataRoot     = CID "QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ"
-  , userDataRootSize = 0
+  , userDataRootSize = Bytes 0
 
   --
 
