@@ -1,6 +1,7 @@
 module Fission.App.Creator
   ( module Fission.App.Creator.Class
   , createWithPlaceholder
+  , createDB
   ) where
 
 import           Fission.Models
@@ -14,6 +15,9 @@ import           Fission.App.Creator.Class
 import           Fission.URL.Subdomain.Types
 
 import           Network.IPFS.Bytes.Types
+import           Network.IPFS.CID.Types
+
+import           Database.Esqueleto hiding ((<&>))
 
 createWithPlaceholder ::
   ( App.Creator        m
@@ -24,4 +28,23 @@ createWithPlaceholder ::
   -> m (Either Errors (AppId, Subdomain))
 createWithPlaceholder ownerId now = do
   defaultCID <- AppCID.placeholder
-  create ownerId defaultCID (Bytes 0) now
+  create ownerId defaultCID now
+
+createDB :: 
+     MonadIO m
+  => UserId 
+  -> CID 
+  -> Bytes 
+  -> UTCTime 
+  -> Transaction m AppId
+createDB ownerId cid size now = do
+  appId <- insert App
+    { appOwnerId    = ownerId
+    , appCid        = cid
+    , appSize       = size
+    , appInsertedAt = now
+    , appModifiedAt = now
+    }
+
+  _ <- insert $ CreateAppEvent appId ownerId cid size now
+  return appId

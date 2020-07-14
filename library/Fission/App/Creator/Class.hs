@@ -3,11 +3,10 @@ module Fission.App.Creator.Class
   , Errors
   ) where
 
-import           Database.Esqueleto hiding ((<&>))
 import           Servant
 
 import           Network.IPFS.CID.Types
-import           Network.IPFS.Bytes.Types
+import qualified Network.IPFS.Get.Error as IPFS.Stat
 
 import           Fission.Prelude
 import           Fission.Error as Error
@@ -26,6 +25,8 @@ type Errors = OpenUnion
    , ActionNotAuthorized URL
    , NotFound            URL
 
+   , IPFS.Stat.Error
+
    , InvalidURL
    ]
 
@@ -33,22 +34,5 @@ class Monad m => Creator m where
   create :: 
        UserId 
     -> CID 
-    -> Bytes 
     -> UTCTime 
     -> m (Either Errors (AppId, Subdomain))
-
-instance (MonadIO m, App.Domain.Initializer m) => Creator (Transaction m) where
-  create ownerId cid size now = do
-    appId <- insert App
-      { appOwnerId    = ownerId
-      , appCid        = cid
-      , appSize       = size
-      , appInsertedAt = now
-      , appModifiedAt = now
-      }
-
-    _ <- insert $ CreateAppEvent appId ownerId cid size now
-
-    App.Domain.associateDefault ownerId appId now <&> \case
-      Left  err       -> Error.relaxedLeft err
-      Right subdomain -> Right (appId, subdomain)

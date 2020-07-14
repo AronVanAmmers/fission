@@ -43,7 +43,6 @@ import qualified Fission.App.Destroyer as App.Destroyer
 import qualified Fission.Web.Error                     as Web.Error
 import           Fission.Web.Types
 
-import qualified Fission.App.Creator as App
 
 import           Fission.IPFS.Linked
 import qualified Fission.Platform.Heroku.AddOn.Creator as Heroku.AddOn
@@ -476,54 +475,65 @@ instance App.Retriever Fission where
   ownedBy uId       = runDB $ App.ownedBy uId
 
 instance App.Creator Fission where
-  create ownerID cid size now =
-    runDB (App.create ownerID cid size now) >>= \case
+  create ownerId cid now =
+    IPFS.Stat.getSizeRemote cid >>= \case
       Left err ->
-        return $ Left err
+        return $ Error.openLeft err
 
-      Right (appId, subdomain) -> do
-        appCID     <- App.Content.placeholder
-        domainName <- App.Domain.initial
-        zoneID     <- asks baseAppZoneID
+      Right size -> do
+        appId <- runDB (App.createDB ownerId cid size now)
+        runDB (App.Domain.associateDefault ownerId appId now) >>= \case
+          Left err -> 
+            return $ Error.relaxedLeft err
 
-        let
-          url :: URL
-          url = URL { domainName, subdomain = Just subdomain }
+          Right subdomain -> do
+            appCID     <- App.Content.placeholder
+            domainName <- App.Domain.initial
+            zoneID     <- asks baseAppZoneID
 
-        DNSLink.set ownerID url zoneID appCID <&> \case
-          Left  err -> Error.relaxedLeft err
-          Right _   -> Right (appId, subdomain)
+            let
+              url :: URL
+              url = URL { domainName, subdomain = Just subdomain }
+
+            DNSLink.set ownerId url zoneID appCID >>= \case
+              Left  err -> return $ Error.relaxedLeft err
+              Right _   -> return $ Right (appId, subdomain)
 
 instance App.Modifier Fission where
-  setCID userId url newCID size copyFiles now = do
-    runDB (App.setCID userId url newCID size copyFiles now) >>= \case
+  setCID userId url newCID copyFiles now = 
+    IPFS.Stat.getSizeRemote newCID >>= \case
       Left err ->
-        return $ Left err
+        return $ Error.openLeft err
 
-      Right appId -> do
-        runDB (App.Domain.primarySibling userId url) >>= \case
+      Right size ->
+        runDB (App.setCidDB userId url newCID size copyFiles now) >>= \case
           Left err ->
-            return $ relaxedLeft err
+            return $ Left err
 
-          Right (Entity _ AppDomain {..}) ->
-            Domain.getByDomainName appDomainDomainName >>= \case
+          Right appId -> do
+            runDB (App.Domain.primarySibling userId url) >>= \case
               Left err ->
-                return $ openLeft err
+                return $ relaxedLeft err
 
-              Right Domain {domainZoneId} ->
-                DNSLink.set userId (URL appDomainDomainName appDomainSubdomain) domainZoneId newCID >>= \case
+              Right (Entity _ AppDomain {..}) ->
+                Domain.getByDomainName appDomainDomainName >>= \case
                   Left err ->
-                    return $ relaxedLeft err
+                    return $ openLeft err
 
-                  Right _ ->
-                    if copyFiles
-                      then
-                        IPFS.Pin.add newCID <&> \case
-                          Right _  -> Right appId
-                          Left err -> Error.openLeft err
+                  Right Domain {domainZoneId} ->
+                    DNSLink.set userId (URL appDomainDomainName appDomainSubdomain) domainZoneId newCID >>= \case
+                      Left err ->
+                        return $ relaxedLeft err
 
-                      else
-                        return $ Right appId
+                      Right _ ->
+                        if copyFiles
+                          then
+                            IPFS.Pin.add newCID <&> \case
+                              Right _  -> Right appId
+                              Left err -> Error.openLeft err
+
+                          else
+                            return $ Right appId
 
 instance App.Destroyer Fission where
   destroy uId appId now =

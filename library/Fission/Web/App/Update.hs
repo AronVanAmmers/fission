@@ -15,9 +15,6 @@ import           Fission.Web.Error      as Web.Error
 
 import           Fission.URL.Types
 
-import qualified Network.IPFS.Stat as IPFS.Stat
-import           Network.IPFS.Remote.Class
-
 
 type API
   =  Summary     "Set app content"
@@ -31,15 +28,13 @@ update ::
   ( MonadLogger     m
   , MonadThrow      m
   , MonadTime       m
-  , MonadRemoteIPFS m
   , App.Modifier    m
   )
   => Authorization
   -> ServerT API m
 update Authorization {about = Entity userId _} url newCID copyDataFlag = do
   now <- currentTime
-  size <- Web.Error.ensureM $ IPFS.Stat.getSizeRemote newCID
-  Web.Error.ensureM $ App.setCID userId url newCID size copyFiles now
+  Web.Error.ensureM $ App.setCID userId url newCID copyFiles now
   return NoContent
   where
     copyFiles :: Bool
