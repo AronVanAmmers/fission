@@ -12,9 +12,7 @@ import           Fission.Authorization
 import           Fission.Web.Error as Web.Error
 import qualified Fission.User as User
 
-import qualified Network.IPFS.Stat as IPFS.Stat
 import           Network.IPFS.CID.Types
-import           Network.IPFS.Remote.Class
 
 
 type API
@@ -27,13 +25,11 @@ server ::
   ( MonadLogger     m
   , MonadThrow      m
   , MonadTime       m
-  , MonadRemoteIPFS m
   , User.Modifier   m
   )
   => Authorization
   -> ServerT API m
 server Authorization {about = Entity userID _} newCID = do
   now <- currentTime
-  size <- Web.Error.ensureM $ IPFS.Stat.getSizeRemote newCID
-  Web.Error.ensureM $ User.setData userID newCID size now
+  Web.Error.ensureM $ User.setData userID newCID now
   return NoContent

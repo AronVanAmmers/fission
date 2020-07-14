@@ -6,10 +6,9 @@ module Fission.User.Modifier.Class
 import           Database.Persist as Persist
 import           Servant.Server
 
-import qualified Network.IPFS.Add.Error as IPFS.Pin
-import qualified Network.IPFS.Get.Error as IPFS.Stat
+import qualified Network.IPFS.Add.Error as IPFS.Pin -- Pin uses Add errors
+import qualified Network.IPFS.Get.Error as IPFS.Stat -- Stat uses Get errors
 import           Network.IPFS.CID.Types
-import           Network.IPFS.Bytes.Types
 
 import           Fission.Error
 import           Fission.Models
@@ -48,7 +47,6 @@ class Monad m => Modifier m where
   setData ::
        UserId
     -> CID
-    -> Bytes
     -> UTCTime
     -> m (Either Errors ())
 
@@ -74,14 +72,14 @@ instance MonadIO m => Modifier (Transaction m) where
 
     return $ Right pk
 
-  setData userId newCID size now = do
+  setData userId newCID now = do
     update userId
       [ UserDataRoot     =. newCID
-      , UserDataRootSize =. size
+      -- , UserDataRootSize =. size
       , UserModifiedAt   =. now
       ]
 
-    insert_ $ UpdateUserDataRootEvent userId newCID size now
+    -- insert_ $ UpdateUserDataRootEvent userId newCID size now
 
     return ok
 

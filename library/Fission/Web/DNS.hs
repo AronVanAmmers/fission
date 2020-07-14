@@ -16,9 +16,7 @@ import           Fission.Web.Error           as Web.Err
 import           Fission.User.Username.Types
 import qualified Fission.User.Modifier       as User
 
-import qualified Network.IPFS.Stat as IPFS.Stat
 import           Network.IPFS.CID.Types
-import           Network.IPFS.Remote.Class
 
 type API
   =  Summary "Set account's DNSLink"
@@ -32,12 +30,10 @@ server ::
   ( MonadTime       m
   , MonadThrow      m
   , MonadLogger     m
-  , MonadRemoteIPFS m
   , User.Modifier   m
   )
   => Authorization -> ServerT API m
 server Authorization {about = Entity userID User {userUsername = Username rawUN}} cid = do
   now <- currentTime
-  size <- Web.Err.ensureM $ IPFS.Stat.getSizeRemote cid
-  ensureM $ User.setData userID cid size now
+  ensureM $ User.setData userID cid now
   return . DomainName $ rawUN <> ".fission.name"
