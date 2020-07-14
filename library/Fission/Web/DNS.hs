@@ -6,6 +6,8 @@ module Fission.Web.DNS
 import           Database.Esqueleto
 import           Servant
 
+import           Network.IPFS.CID.Types
+
 import           Fission.Authorization
 import           Fission.Models
 import           Fission.Prelude
@@ -16,7 +18,6 @@ import           Fission.Web.Error           as Web.Err
 import           Fission.User.Username.Types
 import qualified Fission.User.Modifier       as User
 
-import           Network.IPFS.CID.Types
 
 type API
   =  Summary "Set account's DNSLink"
@@ -27,10 +28,10 @@ type API
 -- Deprecated! Works the "old" way with direct access to username.fission.name,
 -- WITHOUT the `files` prefix
 server ::
-  ( MonadTime       m
-  , MonadThrow      m
-  , MonadLogger     m
-  , User.Modifier   m
+  ( MonadTime     m
+  , MonadThrow    m
+  , MonadLogger   m
+  , User.Modifier m
   )
   => Authorization -> ServerT API m
 server Authorization {about = Entity userID User {userUsername = Username rawUN}} cid = do

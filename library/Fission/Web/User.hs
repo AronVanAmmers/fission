@@ -67,11 +67,11 @@ type ResetRoute
     :> Reset.API
 
 server ::
-  ( MonadDNSLink    m
-  , MonadLogger     m
-  , MonadTime       m
-  , User.Modifier   m
-  , User.Creator    m
+  ( MonadDNSLink  m
+  , MonadLogger   m
+  , MonadTime     m
+  , User.Modifier m
+  , User.Creator  m
   )
   => ServerT API m
 server = Create.withDID
