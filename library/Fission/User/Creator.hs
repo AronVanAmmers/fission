@@ -6,9 +6,8 @@ module Fission.User.Creator
   , createWithHerokuDB
   ) where
 
-import Fission.User.Creator.Class
-import Fission.User.Creator.Error
-
+import           Fission.User.Creator.Class
+import           Fission.User.Creator.Error
 
 import           Data.UUID (UUID)
 import           Database.Esqueleto hiding ((<&>))

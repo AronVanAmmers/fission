@@ -5,18 +5,19 @@ module Fission.User.Modifier
   , module Fission.User.Modifier.Class
   ) where
 
-import Fission.User.Modifier.Class
+import           Fission.User.Modifier.Class
+
+import           Fission.Prelude
+import           Fission.Models
+
+import           Fission.Key           as Key
+import           Fission.Security.Types
 
 import           Database.Persist as Persist
 
 import           Network.IPFS.CID.Types
 import           Network.IPFS.Bytes.Types
 
-import           Fission.Models
-import           Fission.Prelude
-
-import           Fission.Key           as Key
-import           Fission.Security.Types
 
 updatePasswordDB ::
      MonadIO m

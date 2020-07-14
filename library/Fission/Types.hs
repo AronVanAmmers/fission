@@ -377,7 +377,6 @@ instance User.Creator Fission where
                     , subdomain  = Just $ Subdomain (rawUN <> ".files")
                     }
                     
-
                 DNSLink.follow userId url zoneID userPublic >>= \case
                   Left  err ->
                     return $ Error.relaxedLeft err
